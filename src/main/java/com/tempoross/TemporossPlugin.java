@@ -237,6 +237,12 @@ public class TemporossPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
+
+		if (gameStateChanged.getGameState() == GameState.LOADING)
+		{
+			reset();
+		}
+
 		if (client.getLocalPlayer() == null)
 		{
 			return;
