@@ -146,7 +146,7 @@ class TemporossOverlay extends Overlay
 			if (lp.distanceTo(playerLocation) < MAX_DISTANCE)
 			{
 				//testing shows a time between 20 and 27 seconds. even though it isn't fully accurate, it is still better than nothing
-				float percent = (now.toEpochMilli() - startTime.toEpochMilli()) / DOUBLE_SPOT_MOVE_MILLIS;
+				float percent = (now.toEpochMilli() - startTime) / DOUBLE_SPOT_MOVE_MILLIS;
 				ProgressPieComponent ppc = new ProgressPieComponent();
 				ppc.setBorderColor(config.doubleSpotColor());
 				ppc.setFill(config.doubleSpotColor());

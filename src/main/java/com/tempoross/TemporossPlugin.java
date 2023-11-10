@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -105,7 +105,7 @@ public class TemporossPlugin extends Plugin
 	private final Map<GameObject, DrawObject> gameObjects = new WeakHashMap<>();
 
 	@Getter
-	private final Map<NPC, Instant> npcs = new HashMap<>();
+	private final Map<NPC, Long> npcs = new IdentityHashMap<>();
 
 	private final Map<GameObject, DrawObject> totemMap = new WeakHashMap<>();
 
@@ -219,7 +219,7 @@ public class TemporossPlugin extends Plugin
 		{
 			if (config.highlightDoubleSpot())
 			{
-				npcs.put(npcSpawned.getNpc(), Instant.now());
+				npcs.put(npcSpawned.getNpc(), Instant.now().toEpochMilli());
 			}
 
 			if (config.doubleSpotNotification())
