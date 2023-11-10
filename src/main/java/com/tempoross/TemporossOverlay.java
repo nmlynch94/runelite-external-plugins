@@ -69,11 +69,14 @@ class TemporossOverlay extends Overlay
 
 	private void highlightGameObjects(Graphics2D graphics, LocalPoint playerLocation, Instant now)
 	{
+		final int plane = client.getPlane();
+		final TimerModes highlightFires = config.highlightFires();
+		final TimerModes waveTimer = config.useWaveTimer();
 		plugin.getGameObjects().forEach((object, drawObject) ->
 		{
 			Tile tile = drawObject.getTile();
 
-			if (tile.getPlane() == client.getPlane()
+			if (tile.getPlane() == plane
 				&& tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 			{
 				Polygon poly = object.getCanvasTilePoly();
@@ -83,38 +86,42 @@ class TemporossOverlay extends Overlay
 					OverlayUtil.renderPolygon(graphics, poly, drawObject.getColor());
 				}
 			}
-			if (FIRE_GAMEOBJECTS.contains(object.getId()) && config.highlightFires() != TimerModes.OFF)
+			if (highlightFires != TimerModes.OFF && FIRE_GAMEOBJECTS.contains(object.getId()))
 			{
 				if (drawObject.getDuration() > 0 &&
 						object.getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && (config.highlightFires() == TimerModes.SECONDS || config.highlightFires() == TimerModes.TICKS))
+						(highlightFires == TimerModes.SECONDS || highlightFires == TimerModes.TICKS) &&
+						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 				{
 					long waveTimerMillis = (drawObject.getStartTime().toEpochMilli() + drawObject.getDuration()) - now.toEpochMilli();
 					//modulo to recalculate fires timer after they spread
 					waveTimerMillis = (((waveTimerMillis % drawObject.getDuration()) + drawObject.getDuration()) % drawObject.getDuration());
 
-					renderTextElement(object, drawObject, waveTimerMillis, graphics, config.highlightFires());
+					renderTextElement(object, drawObject, waveTimerMillis, graphics, highlightFires);
 				}
 				else if (drawObject.getDuration() > 0 &&
 						object.getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && config.highlightFires() == TimerModes.PIE)
+						highlightFires == TimerModes.PIE &&
+						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 				{
 					renderPieElement(object, drawObject, now, graphics);
 				}
 			}
-			else if (TETHER_GAMEOBJECTS.contains(object.getId()) && config.useWaveTimer() != TimerModes.OFF) //Wave and is not OFF
+			else if (waveTimer != TimerModes.OFF && TETHER_GAMEOBJECTS.contains(object.getId())) //Wave and is not OFF
 			{
 				if (drawObject.getDuration() > 0 &&
 						object.getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && (config.useWaveTimer() == TimerModes.SECONDS || config.useWaveTimer() == TimerModes.TICKS))
+						(waveTimer == TimerModes.SECONDS || waveTimer == TimerModes.TICKS) &&
+						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 				{
 					long waveTimerMillis = (drawObject.getStartTime().toEpochMilli() + drawObject.getDuration()) - now.toEpochMilli();
 
-					renderTextElement(object, drawObject, waveTimerMillis, graphics, config.useWaveTimer());
+					renderTextElement(object, drawObject, waveTimerMillis, graphics, waveTimer);
 				}
 				else if (drawObject.getDuration() > 0 &&
 						object.getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && config.useWaveTimer() == TimerModes.PIE)
+						waveTimer == TimerModes.PIE &&
+						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 				{
 					renderPieElement(object, drawObject, now, graphics);
 				}
