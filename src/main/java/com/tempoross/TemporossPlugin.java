@@ -347,33 +347,36 @@ public class TemporossPlugin extends Plugin
 
 	public void addTotemTimers(boolean setStart)
 	{
+		if (setStart && !totemMap.isEmpty())
+		{
+			this.waveIncomingStartTime = Instant.now();
+		}
+		final Instant start = this.waveIncomingStartTime;
+		final boolean tethered = client.getVarbitValue(VARB_IS_TETHERED) > 0;
 		totemMap.forEach((object, drawObject) ->
 		{
 			Color color;
-
-			switch (object.getId())
-			{
-				case ObjectID.DAMAGED_MAST_40996:
-				case ObjectID.DAMAGED_MAST_40997:
-				case ObjectID.DAMAGED_TOTEM_POLE:
-				case ObjectID.DAMAGED_TOTEM_POLE_41011:
-					color = config.poleBrokenColor();
-					break;
-				default:
-					color = config.waveTimerColor();
-			}
-
-			if (client.getVarbitValue(VARB_IS_TETHERED) > 0)
+			if (tethered)
 			{
 				color = config.tetheredColor();
 			}
-
-			if (setStart)
+			else
 			{
-				waveIncomingStartTime = Instant.now();
+				switch (object.getId())
+				{
+					case ObjectID.DAMAGED_MAST_40996:
+					case ObjectID.DAMAGED_MAST_40997:
+					case ObjectID.DAMAGED_TOTEM_POLE:
+					case ObjectID.DAMAGED_TOTEM_POLE_41011:
+						color = config.poleBrokenColor();
+						break;
+					default:
+						color = config.waveTimerColor();
+						break;
+				}
 			}
 
-			drawObject.setStartTime(waveIncomingStartTime);
+			drawObject.setStartTime(start);
 			drawObject.setColor(color);
 
 			gameObjects.put(object, drawObject);
