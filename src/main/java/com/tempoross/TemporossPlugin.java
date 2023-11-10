@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import static com.tempoross.TimerSwaps.*;
 
@@ -101,12 +102,12 @@ public class TemporossPlugin extends Plugin
 	//40996/40997 = a broken mast
 
 	@Getter
-	private final Map<GameObject, DrawObject> gameObjects = new HashMap<>();
+	private final Map<GameObject, DrawObject> gameObjects = new WeakHashMap<>();
 
 	@Getter
 	private final Map<NPC, Instant> npcs = new HashMap<>();
 
-	private final Map<GameObject, DrawObject> totemMap = new HashMap<>();
+	private final Map<GameObject, DrawObject> totemMap = new WeakHashMap<>();
 
 	private TemporossInfoBox rewardInfoBox;
 	private TemporossInfoBox fishInfoBox;
@@ -174,7 +175,7 @@ public class TemporossPlugin extends Plugin
 			default:
 				//if it is not one of the above, it is a totem/mast and should be added to the totem map, with 7800ms duration, and the regular color
 				totemMap.put(gameObjectSpawned.getGameObject(),
-						new DrawObject(gameObjectSpawned.getTile(), gameObjectSpawned.getGameObject(),
+						new DrawObject(gameObjectSpawned.getTile(),
 								Instant.now(), WAVE_IMPACT_MILLIS, config.waveTimerColor()));
 				if (waveIsIncoming && config.useWaveTimer() != TimerModes.OFF)
 				{
@@ -183,7 +184,7 @@ public class TemporossPlugin extends Plugin
 				return;
 		}
 
-		gameObjects.put(gameObjectSpawned.getGameObject(), new DrawObject(gameObjectSpawned.getTile(), gameObjectSpawned.getGameObject(), Instant.now(), duration, config.fireColor()));
+		gameObjects.put(gameObjectSpawned.getGameObject(), new DrawObject(gameObjectSpawned.getTile(), Instant.now(), duration, config.fireColor()));
 //		}
 	}
 
@@ -381,7 +382,7 @@ public class TemporossPlugin extends Plugin
 
 	public void removeTotemTimers()
 	{
-		totemMap.forEach(gameObjects::remove);
+		gameObjects.keySet().removeAll(totemMap.keySet());
 	}
 
 	private TemporossInfoBox createInfobox(BufferedImage image, String text, String tooltip)
