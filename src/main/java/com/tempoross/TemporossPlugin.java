@@ -274,7 +274,7 @@ public class TemporossPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onVarbitChanged(VarbitChanged varbitChanged)
+	public void onClientTick(ClientTick clientTick)
 	{
 		if (nearRewardPool)
 		{
