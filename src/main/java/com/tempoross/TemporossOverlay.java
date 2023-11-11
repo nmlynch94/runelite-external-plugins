@@ -69,12 +69,14 @@ class TemporossOverlay extends Overlay
 
 	private void highlightGameObjects(Graphics2D graphics, LocalPoint playerLocation, Instant now)
 	{
-		plugin.getGameObjects().values().forEach((drawObject) ->
+		final int plane = client.getPlane();
+		final TimerModes highlightFires = config.highlightFires();
+		final TimerModes waveTimer = config.useWaveTimer();
+		plugin.getGameObjects().forEach((object, drawObject) ->
 		{
-			GameObject object = drawObject.getGameObject();
 			Tile tile = drawObject.getTile();
 
-			if (tile.getPlane() == client.getPlane()
+			if (tile.getPlane() == plane
 				&& tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE)
 			{
 				Polygon poly = object.getCanvasTilePoly();
@@ -84,40 +86,44 @@ class TemporossOverlay extends Overlay
 					OverlayUtil.renderPolygon(graphics, poly, drawObject.getColor());
 				}
 			}
-			if (FIRE_GAMEOBJECTS.contains(drawObject.getGameObject().getId()) && config.highlightFires() != TimerModes.OFF)
+			if (drawObject.getDuration() <= 0 || object.getCanvasLocation() == null)
 			{
-				if (drawObject.getDuration() > 0 &&
-						drawObject.getGameObject().getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && (config.highlightFires() == TimerModes.SECONDS || config.highlightFires() == TimerModes.TICKS))
+				return;
+			}
+			if (highlightFires != TimerModes.OFF && FIRE_GAMEOBJECTS.contains(object.getId()))
+			{
+				if (tile.getLocalLocation().distanceTo(playerLocation) >= MAX_DISTANCE)
+				{
+					return;
+				}
+				if (highlightFires == TimerModes.SECONDS || highlightFires == TimerModes.TICKS)
 				{
 					long waveTimerMillis = (drawObject.getStartTime().toEpochMilli() + drawObject.getDuration()) - now.toEpochMilli();
 					//modulo to recalculate fires timer after they spread
 					waveTimerMillis = (((waveTimerMillis % drawObject.getDuration()) + drawObject.getDuration()) % drawObject.getDuration());
 
-					renderTextElement(drawObject, waveTimerMillis, graphics, config.highlightFires());
+					renderTextElement(object, drawObject, waveTimerMillis, graphics, highlightFires);
 				}
-				else if (drawObject.getDuration() > 0 &&
-						drawObject.getGameObject().getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && config.highlightFires() == TimerModes.PIE)
+				else if (highlightFires == TimerModes.PIE)
 				{
-					renderPieElement(drawObject, now, graphics);
+					renderPieElement(object, drawObject, now, graphics);
 				}
 			}
-			else if (TETHER_GAMEOBJECTS.contains(drawObject.getGameObject().getId()) && config.useWaveTimer() != TimerModes.OFF) //Wave and is not OFF
+			else if (waveTimer != TimerModes.OFF && TETHER_GAMEOBJECTS.contains(object.getId())) //Wave and is not OFF
 			{
-				if (drawObject.getDuration() > 0 &&
-						drawObject.getGameObject().getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && (config.useWaveTimer() == TimerModes.SECONDS || config.useWaveTimer() == TimerModes.TICKS))
+				if (tile.getLocalLocation().distanceTo(playerLocation) >= MAX_DISTANCE)
+				{
+					return;
+				}
+				if (waveTimer == TimerModes.SECONDS || waveTimer == TimerModes.TICKS)
 				{
 					long waveTimerMillis = (drawObject.getStartTime().toEpochMilli() + drawObject.getDuration()) - now.toEpochMilli();
 
-					renderTextElement(drawObject, waveTimerMillis, graphics, config.useWaveTimer());
+					renderTextElement(object, drawObject, waveTimerMillis, graphics, waveTimer);
 				}
-				else if (drawObject.getDuration() > 0 &&
-						drawObject.getGameObject().getCanvasLocation() != null &&
-						tile.getLocalLocation().distanceTo(playerLocation) < MAX_DISTANCE && config.useWaveTimer() == TimerModes.PIE)
+				else if (waveTimer == TimerModes.PIE)
 				{
-					renderPieElement(drawObject, now, graphics);
+					renderPieElement(object, drawObject, now, graphics);
 				}
 			}
 		});
@@ -140,7 +146,7 @@ class TemporossOverlay extends Overlay
 			if (lp.distanceTo(playerLocation) < MAX_DISTANCE)
 			{
 				//testing shows a time between 20 and 27 seconds. even though it isn't fully accurate, it is still better than nothing
-				float percent = (now.toEpochMilli() - startTime.toEpochMilli()) / DOUBLE_SPOT_MOVE_MILLIS;
+				float percent = (now.toEpochMilli() - startTime) / DOUBLE_SPOT_MOVE_MILLIS;
 				ProgressPieComponent ppc = new ProgressPieComponent();
 				ppc.setBorderColor(config.doubleSpotColor());
 				ppc.setFill(config.doubleSpotColor());
@@ -152,7 +158,7 @@ class TemporossOverlay extends Overlay
 		});
 	}
 
-	private void renderTextElement(DrawObject drawObject, long timerMillis, Graphics2D graphics, TimerModes timerMode)
+	private void renderTextElement(GameObject gameObject, DrawObject drawObject, long timerMillis, Graphics2D graphics, TimerModes timerMode)
 	{
 		final String timerText;
 		if (timerMode == TimerModes.SECONDS)
@@ -165,11 +171,11 @@ class TemporossOverlay extends Overlay
 		}
 		textComponent.setText(timerText);
 		textComponent.setColor(drawObject.getColor());
-		textComponent.setPosition(new java.awt.Point(drawObject.getGameObject().getCanvasLocation().getX(), drawObject.getGameObject().getCanvasLocation().getY()));
+		textComponent.setPosition(new java.awt.Point(gameObject.getCanvasLocation().getX(), gameObject.getCanvasLocation().getY()));
 		textComponent.render(graphics);
 	}
 
-	private void renderPieElement(DrawObject drawObject, Instant now, Graphics2D graphics)
+	private void renderPieElement(GameObject gameObject, DrawObject drawObject, Instant now, Graphics2D graphics)
 	{
 		//modulo as the fire spreads every 24 seconds
 		float percent = ((now.toEpochMilli() - drawObject.getStartTime().toEpochMilli()) % drawObject.getDuration()) / (float) drawObject.getDuration();
@@ -178,7 +184,7 @@ class TemporossOverlay extends Overlay
 		ppc.setFill(drawObject.getColor());
 		ppc.setProgress(percent);
 		ppc.setDiameter(PIE_DIAMETER);
-		ppc.setPosition(drawObject.getGameObject().getCanvasLocation());
+		ppc.setPosition(gameObject.getCanvasLocation());
 		ppc.render(graphics);
 	}
 }

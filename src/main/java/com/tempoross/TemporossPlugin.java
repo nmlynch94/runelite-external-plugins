@@ -19,9 +19,10 @@ import javax.inject.Inject;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import static com.tempoross.TimerSwaps.*;
 
@@ -101,12 +102,12 @@ public class TemporossPlugin extends Plugin
 	//40996/40997 = a broken mast
 
 	@Getter
-	private final Map<GameObject, DrawObject> gameObjects = new HashMap<>();
+	private final Map<GameObject, DrawObject> gameObjects = new WeakHashMap<>();
 
 	@Getter
-	private final Map<NPC, Instant> npcs = new HashMap<>();
+	private final Map<NPC, Long> npcs = new IdentityHashMap<>();
 
-	private final Map<GameObject, DrawObject> totemMap = new HashMap<>();
+	private final Map<GameObject, DrawObject> totemMap = new WeakHashMap<>();
 
 	private TemporossInfoBox rewardInfoBox;
 	private TemporossInfoBox fishInfoBox;
@@ -174,7 +175,7 @@ public class TemporossPlugin extends Plugin
 			default:
 				//if it is not one of the above, it is a totem/mast and should be added to the totem map, with 7800ms duration, and the regular color
 				totemMap.put(gameObjectSpawned.getGameObject(),
-						new DrawObject(gameObjectSpawned.getTile(), gameObjectSpawned.getGameObject(),
+						new DrawObject(gameObjectSpawned.getTile(),
 								Instant.now(), WAVE_IMPACT_MILLIS, config.waveTimerColor()));
 				if (waveIsIncoming && config.useWaveTimer() != TimerModes.OFF)
 				{
@@ -183,7 +184,7 @@ public class TemporossPlugin extends Plugin
 				return;
 		}
 
-		gameObjects.put(gameObjectSpawned.getGameObject(), new DrawObject(gameObjectSpawned.getTile(), gameObjectSpawned.getGameObject(), Instant.now(), duration, config.fireColor()));
+		gameObjects.put(gameObjectSpawned.getGameObject(), new DrawObject(gameObjectSpawned.getTile(), Instant.now(), duration, config.fireColor()));
 //		}
 	}
 
@@ -218,7 +219,7 @@ public class TemporossPlugin extends Plugin
 		{
 			if (config.highlightDoubleSpot())
 			{
-				npcs.put(npcSpawned.getNpc(), Instant.now());
+				npcs.put(npcSpawned.getNpc(), Instant.now().toEpochMilli());
 			}
 
 			if (config.doubleSpotNotification())
@@ -273,7 +274,7 @@ public class TemporossPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onVarbitChanged(VarbitChanged varbitChanged)
+	public void onClientTick(ClientTick clientTick)
 	{
 		if (nearRewardPool)
 		{
@@ -346,33 +347,36 @@ public class TemporossPlugin extends Plugin
 
 	public void addTotemTimers(boolean setStart)
 	{
+		if (setStart && !totemMap.isEmpty())
+		{
+			this.waveIncomingStartTime = Instant.now();
+		}
+		final Instant start = this.waveIncomingStartTime;
+		final boolean tethered = client.getVarbitValue(VARB_IS_TETHERED) > 0;
 		totemMap.forEach((object, drawObject) ->
 		{
 			Color color;
-
-			switch (object.getId())
-			{
-				case ObjectID.DAMAGED_MAST_40996:
-				case ObjectID.DAMAGED_MAST_40997:
-				case ObjectID.DAMAGED_TOTEM_POLE:
-				case ObjectID.DAMAGED_TOTEM_POLE_41011:
-					color = config.poleBrokenColor();
-					break;
-				default:
-					color = config.waveTimerColor();
-			}
-
-			if (client.getVarbitValue(VARB_IS_TETHERED) > 0)
+			if (tethered)
 			{
 				color = config.tetheredColor();
 			}
-
-			if (setStart)
+			else
 			{
-				waveIncomingStartTime = Instant.now();
+				switch (object.getId())
+				{
+					case ObjectID.DAMAGED_MAST_40996:
+					case ObjectID.DAMAGED_MAST_40997:
+					case ObjectID.DAMAGED_TOTEM_POLE:
+					case ObjectID.DAMAGED_TOTEM_POLE_41011:
+						color = config.poleBrokenColor();
+						break;
+					default:
+						color = config.waveTimerColor();
+						break;
+				}
 			}
 
-			drawObject.setStartTime(waveIncomingStartTime);
+			drawObject.setStartTime(start);
 			drawObject.setColor(color);
 
 			gameObjects.put(object, drawObject);
@@ -381,7 +385,7 @@ public class TemporossPlugin extends Plugin
 
 	public void removeTotemTimers()
 	{
-		totemMap.forEach(gameObjects::remove);
+		gameObjects.keySet().removeAll(totemMap.keySet());
 	}
 
 	private TemporossInfoBox createInfobox(BufferedImage image, String text, String tooltip)
