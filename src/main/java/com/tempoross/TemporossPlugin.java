@@ -407,12 +407,18 @@ public class TemporossPlugin extends Plugin
 
 	private void addRewardInfoBox(int rewardPoints)
 	{
-		infoBoxManager.removeInfoBox(rewardInfoBox);
-		rewardInfoBox = createInfobox(itemManager.getImage(REWARD_POOL_IMAGE_ID),
-			Integer.toString(rewardPoints),
-			rewardPoints + " Reward Point" + (rewardPoints == 1 ? "" : "s"));
-
-		infoBoxManager.addInfoBox(rewardInfoBox);
+		String text = Integer.toString(rewardPoints);
+		String tooltip = rewardPoints + " Reward Point" + (rewardPoints == 1 ? "" : "s");
+		if (rewardInfoBox == null)
+		{
+			rewardInfoBox = createInfobox(itemManager.getImage(REWARD_POOL_IMAGE_ID), text, tooltip);
+			infoBoxManager.addInfoBox(rewardInfoBox);
+		}
+		else
+		{
+			rewardInfoBox.setText(text);
+			rewardInfoBox.setTooltip(tooltip);
+		}
 	}
 
 	public void removeRewardInfoBox()
@@ -423,16 +429,30 @@ public class TemporossPlugin extends Plugin
 
 	public void addFishInfoBox(String text, String tooltip)
 	{
-		infoBoxManager.removeInfoBox(fishInfoBox);
-		fishInfoBox = createInfobox(itemManager.getImage(FISH_IMAGE_ID), text, tooltip);
-		infoBoxManager.addInfoBox(fishInfoBox);
+		if (fishInfoBox == null)
+		{
+			fishInfoBox = createInfobox(itemManager.getImage(FISH_IMAGE_ID), text, tooltip);
+			infoBoxManager.addInfoBox(fishInfoBox);
+		}
+		else
+		{
+			fishInfoBox.setText(text);
+			fishInfoBox.setTooltip(tooltip);
+		}
 	}
 
 	public void addTotalFishInfoBox(String text, String tooltip)
 	{
-		infoBoxManager.removeInfoBox(totalFishInfoBox);
-		totalFishInfoBox = createInfobox(itemManager.getImage(NET_IMAGE_ID), text, tooltip);
-		infoBoxManager.addInfoBox(totalFishInfoBox);
+		if (totalFishInfoBox == null)
+		{
+			totalFishInfoBox = createInfobox(itemManager.getImage(NET_IMAGE_ID), text, tooltip);
+			infoBoxManager.addInfoBox(totalFishInfoBox);
+		}
+		else
+		{
+			totalFishInfoBox.setText(text);
+			totalFishInfoBox.setTooltip(tooltip);
+		}
 	}
 
 	public void removeFishInfoBox()
@@ -449,9 +469,18 @@ public class TemporossPlugin extends Plugin
 
 	public void addDamageInfoBox(int damage)
 	{
-		infoBoxManager.removeInfoBox(damageInfoBox);
-		damageInfoBox = createInfobox(itemManager.getImage(DAMAGE_IMAGE_ID), Integer.toString(damage), "Damage: " + damage);
-		infoBoxManager.addInfoBox(damageInfoBox);
+		String text = Integer.toString(damage);
+		String tooltip = "Damage: " + damage;
+		if (damageInfoBox == null)
+		{
+			damageInfoBox = createInfobox(itemManager.getImage(DAMAGE_IMAGE_ID), text, tooltip);
+			infoBoxManager.addInfoBox(damageInfoBox);
+		}
+		else
+		{
+			damageInfoBox.setText(text);
+			damageInfoBox.setTooltip(tooltip);
+		}
 	}
 
 	public void removeDamageInfoBox()
@@ -462,9 +491,18 @@ public class TemporossPlugin extends Plugin
 
 	public void addPhaseInfoBox(int phase)
 	{
-		infoBoxManager.removeInfoBox(phaseInfoBox);
-		phaseInfoBox = createInfobox(PHASE_IMAGE, Integer.toString(phase), "Phase " + phase);
-		infoBoxManager.addInfoBox(phaseInfoBox);
+		String text = Integer.toString(phase);
+		String tooltip = "Phase " + phase;
+		if (phaseInfoBox == null)
+		{
+			phaseInfoBox = createInfobox(PHASE_IMAGE, text, tooltip);
+			infoBoxManager.addInfoBox(phaseInfoBox);
+		}
+		else
+		{
+			phaseInfoBox.setText(text);
+			phaseInfoBox.setTooltip(tooltip);
+		}
 	}
 
 	public void removePhaseInfoBox()
