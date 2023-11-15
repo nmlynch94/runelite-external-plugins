@@ -276,20 +276,21 @@ public class TemporossPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		if (event.getVarbitId() == VARB_REWARD_POOL_NUMBER && nearRewardPool)
+		if (event.getVarbitId() == VARB_REWARD_POOL_NUMBER)
 		{
-			this.addRewardInfoBox(event.getValue());
+			if (nearRewardPool)
+			{
+				this.addRewardInfoBox(event.getValue());
+			}
 		}
-	}
-
-	@Subscribe
-	public void onClientTick(ClientTick clientTick)
-	{
-		// The varb is a bitfield that refers to what totem/mast the player is tethered to,
-		// with each bit corresponding to a different object, so when tethered, the totem color should update
-		if (waveIsIncoming && config.useWaveTimer() != TimerModes.OFF)
+		else if (event.getVarbitId() == VARB_IS_TETHERED)
 		{
-			addTotemTimers(false);
+			// The varb is a bitfield that refers to what totem/mast the player is tethered to,
+			// with each bit corresponding to a different object, so when tethered, the totem color should update
+			if (waveIsIncoming && config.useWaveTimer() != TimerModes.OFF)
+			{
+				addTotemTimers(false);
+			}
 		}
 	}
 
