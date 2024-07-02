@@ -11,10 +11,21 @@ import static com.tempoross.TimerSwaps.*;
 public interface TemporossConfig extends Config
 {
 	@ConfigItem(
+			keyName = "showRewardInfoBox",
+			name = "Show Reward Count",
+			description = "Shows reward information (permit count) when in Unkah region",
+			position = 0
+	)
+	default boolean showRewardInfoBox()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "highlightFires",
 		name = "Highlight Fires",
 		description = "Draws a square around the fires, and shows a timer when a fire spawns, or when a fire is going to spread",
-		position = 0
+		position = 1
 	)
 	default TimerModes highlightFires()
 	{
@@ -25,7 +36,7 @@ public interface TemporossConfig extends Config
 		keyName = "fireColor",
 		name = "Fire Color",
 		description = "Color of the Fire highlight tiles",
-		position = 1
+		position = 2
 	)
 	default Color fireColor()
 	{
@@ -36,7 +47,7 @@ public interface TemporossConfig extends Config
 		keyName = "fireNotification",
 		name = "Storm Cloud Notification",
 		description = "Notify when a storm clouds appear",
-		position = 2
+		position = 3
 	)
 	default boolean fireNotification()
 	{
@@ -47,7 +58,7 @@ public interface TemporossConfig extends Config
 		keyName = "highlightDoubleSpot",
 		name = "Highlight Double Fishing Spot",
 		description = "Highlights the fishing spot where you can get double fish as well as a timer when it approximately depletes",
-		position = 3
+		position = 4
 	)
 	default boolean highlightDoubleSpot()
 	{
@@ -58,7 +69,7 @@ public interface TemporossConfig extends Config
 		keyName = "doubleSpotColor",
 		name = "Double Spot Color",
 		description = "Color of the Double Spot highlight tiles",
-		position = 4
+		position = 5
 	)
 	default Color doubleSpotColor()
 	{
@@ -66,10 +77,10 @@ public interface TemporossConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "doubleSpotNotification",
-			name = "Double Spot Notification",
-			description = "Notify when a double spot appears",
-			position = 5
+		keyName = "doubleSpotNotification",
+		name = "Double Spot Notification",
+		description = "Notify when a double spot appears",
+		position = 6
 	)
 	default boolean doubleSpotNotification()
 	{
@@ -80,7 +91,7 @@ public interface TemporossConfig extends Config
 		keyName = "useWaveTimer",
 		name = "Enable Wave Timer",
 		description = "Shows a selected type of timer that indicates when the wave damage will hit on a totem pole",
-		position = 6
+		position = 7
 	)
 	default TimerModes useWaveTimer()
 	{
@@ -91,7 +102,7 @@ public interface TemporossConfig extends Config
 		keyName = "waveTimerColor",
 		name = "Wave Timer Color",
 		description = "Color of the Wave Timer when untethered",
-		position = 7
+		position = 8
 	)
 	default Color waveTimerColor()
 	{
@@ -102,7 +113,7 @@ public interface TemporossConfig extends Config
 		keyName = "tetheredColor",
 		name = "Tethered Color",
 		description = "Color of the Wave Timer when tethered",
-		position = 8
+		position = 9
 	)
 	default Color tetheredColor()
 	{
@@ -113,7 +124,7 @@ public interface TemporossConfig extends Config
 		keyName = "poleBrokenColor",
 		name = "Broken Pole Color",
 		description = "Color of the Wave Timer when the pole/mast is broken",
-		position = 9
+		position = 10
 	)
 	default Color poleBrokenColor()
 	{
@@ -124,7 +135,7 @@ public interface TemporossConfig extends Config
 		keyName = "waveNotification",
 		name = "Wave Incoming Notification",
 		description = "Notify when a wave is incoming",
-		position = 10
+		position = 11
 	)
 	default boolean waveNotification()
 	{
@@ -135,7 +146,7 @@ public interface TemporossConfig extends Config
 		keyName = "fishIndicator",
 		name = "Show fish amount",
 		description = "Shows the amount of cooked, and uncooked fish in your inventory, and how much damage that does to the boss",
-		position = 11
+		position = 12
 	)
 	default boolean fishIndicator()
 	{
@@ -146,7 +157,7 @@ public interface TemporossConfig extends Config
 		keyName = "damageIndicator",
 		name = "Show damage",
 		description = "Shows the amount of damage you can do to the boss with the fish in your inventory",
-		position = 12
+		position = 13
 	)
 	default boolean damageIndicator()
 	{
@@ -157,7 +168,7 @@ public interface TemporossConfig extends Config
 		keyName = "phaseIndicator",
 		name = "Show phases",
 		description = "Shows which phase of tempoross you're on",
-		position = 13
+		position = 14
 	)
 	default boolean phaseIndicator()
 	{
@@ -168,7 +179,7 @@ public interface TemporossConfig extends Config
 		keyName = "vulnerableNotification",
 		name = "Vulnerable Notification",
 		description = "Notify when Tempoross is vulnerable",
-		position = 14
+		position = 15
 	)
 	default boolean vulnerableNotification()
 	{
