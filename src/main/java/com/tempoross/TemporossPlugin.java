@@ -8,6 +8,7 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.Notifier;
 import net.runelite.client.plugins.Plugin;
@@ -119,6 +120,7 @@ public class TemporossPlugin extends Plugin
 	private boolean nearRewardPool;
 
 	private int previousRegion;
+	private int rewardCount;
 
 	private int phase = 1;
 
@@ -261,14 +263,7 @@ public class TemporossPlugin extends Plugin
 
 		nearRewardPool = (region == UNKAH_BOAT_REGION || region == UNKAH_REWARD_POOL_REGION);
 
-		if (nearRewardPool)
-		{
-			addRewardInfoBox();
-		}
-		else
-		{
-			removeRewardInfoBox();
-		}
+		drawRewardInfoBox();
 
 		previousRegion = region;
 	}
@@ -278,10 +273,8 @@ public class TemporossPlugin extends Plugin
 	{
 		if (event.getVarbitId() == VARB_REWARD_POOL_NUMBER)
 		{
-			if (nearRewardPool)
-			{
-				this.addRewardInfoBox(event.getValue());
-			}
+			rewardCount = event.getValue();
+			drawRewardInfoBox(rewardCount);
 		}
 		else if (event.getVarbitId() == VARB_IS_TETHERED)
 		{
@@ -292,6 +285,13 @@ public class TemporossPlugin extends Plugin
 				addTotemTimers(false);
 			}
 		}
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged configChanged)
+	{
+		if (configChanged.getKey().equals("showRewardInfoBox"))
+			drawRewardInfoBox(rewardCount);
 	}
 
 	@Subscribe
@@ -399,6 +399,28 @@ public class TemporossPlugin extends Plugin
 		infoBox.setText(text);
 		infoBox.setTooltip(tooltip);
 		return infoBox;
+	}
+
+	private void drawRewardInfoBox() {
+		if (nearRewardPool && config.showRewardInfoBox())
+		{
+			addRewardInfoBox();
+		}
+		else
+		{
+			removeRewardInfoBox();
+		}
+	}
+
+	private void drawRewardInfoBox(int permitCount) {
+		if (nearRewardPool && config.showRewardInfoBox())
+		{
+			addRewardInfoBox(rewardCount);
+		}
+		else
+		{
+			removeRewardInfoBox();
+		}
 	}
 
 	public void addRewardInfoBox()
