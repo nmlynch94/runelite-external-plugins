@@ -163,9 +163,9 @@ public class TemporossPlugin extends Plugin
 				duration = FIRE_SPREAD_MILLIS;
 				break;
 			case NullObjectID.NULL_41006:
-				if (config.fireNotification())
+				if (config.fireNotification().isEnabled())
 				{
-					notifier.notify("A strong wind blows as clouds roll in...");
+					notifier.notify(config.fireNotification(), "A strong wind blows as clouds roll in...");
 				}
 				duration = FIRE_SPAWN_MILLIS;
 				break;
@@ -222,9 +222,9 @@ public class TemporossPlugin extends Plugin
 				npcs.put(npcSpawned.getNpc(), Instant.now().toEpochMilli());
 			}
 
-			if (config.doubleSpotNotification())
+			if (config.doubleSpotNotification().isEnabled())
 			{
-				notifier.notify("A double Harpoonfish spot has appeared.");
+				notifier.notify(config.doubleSpotNotification(), "A double Harpoonfish spot has appeared.");
 			}
 		}
 	}
@@ -308,9 +308,9 @@ public class TemporossPlugin extends Plugin
 			waveIsIncoming = true;
 			addTotemTimers(true);
 
-			if (config.waveNotification())
+			if (config.waveNotification().isEnabled())
 			{
-				notifier.notify("A colossal wave closes in...");
+				notifier.notify(config.waveNotification(), "A colossal wave closes in...");
 			}
 		}
 		else if (message.contains(WAVE_END_SAFE) || message.contains(WAVE_END_DANGEROUS))
@@ -324,9 +324,9 @@ public class TemporossPlugin extends Plugin
 
 			redrawInfoBoxes();
 
-			if (config.vulnerableNotification())
+			if (config.vulnerableNotification().isEnabled())
 			{
-				notifier.notify("Tempoross is vulnerable.");
+				notifier.notify(config.vulnerableNotification(), "Tempoross is vulnerable.");
 			}
 		}
 	}

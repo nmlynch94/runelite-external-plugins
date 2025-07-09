@@ -9,3 +9,4 @@ nb-configuration.xml
 nbproject/
 checkstyle.xml
 suppressions.xml
+.DS_Store
