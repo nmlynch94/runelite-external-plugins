@@ -3,6 +3,7 @@ package com.tempoross;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Notification;
 import java.awt.Color;
 
 import static com.tempoross.TimerSwaps.*;
@@ -35,12 +36,12 @@ public interface TemporossConfig extends Config
 	@ConfigItem(
 		keyName = "fireNotification",
 		name = "Storm Cloud Notification",
-		description = "Notify when a storm clouds appear",
+		description = "Notify when storm clouds appear",
 		position = 2
 	)
-	default boolean fireNotification()
+	default Notification fireNotification()
 	{
-		return false;
+		return Notification.OFF;
 	}
 
 	@ConfigItem(
@@ -71,9 +72,9 @@ public interface TemporossConfig extends Config
 			description = "Notify when a double spot appears",
 			position = 5
 	)
-	default boolean doubleSpotNotification()
+	default Notification doubleSpotNotification()
 	{
-		return false;
+		return Notification.OFF;
 	}
 
 	@ConfigItem(
@@ -126,9 +127,9 @@ public interface TemporossConfig extends Config
 		description = "Notify when a wave is incoming",
 		position = 10
 	)
-	default boolean waveNotification()
+	default Notification waveNotification()
 	{
-		return false;
+		return Notification.OFF;
 	}
 
 	@ConfigItem(
@@ -170,9 +171,9 @@ public interface TemporossConfig extends Config
 		description = "Notify when Tempoross is vulnerable",
 		position = 14
 	)
-	default boolean vulnerableNotification()
+	default Notification vulnerableNotification()
 	{
-		return false;
+		return Notification.OFF;
 	}
 
 	@ConfigItem(
