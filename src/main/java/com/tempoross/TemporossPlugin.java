@@ -19,6 +19,7 @@ import net.runelite.client.util.ImageUtil;
 import javax.inject.Inject;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -86,6 +87,11 @@ public class TemporossPlugin extends Plugin
 
 	@Inject
 	private TemporossOverlay temporossOverlay;
+
+    // Utilized for fire notification debounce
+    private static final Duration WIND_NOTIFY_COOLDOWN = Duration.ofSeconds(20);
+    private static boolean stormNotificationHasFired = false;
+    private Instant lastWindNotify = Instant.EPOCH;
 
 	private final Set<Integer> TEMPOROSS_GAMEOBJECTS = ImmutableSet.of(
 		FIRE_ID, NullObjectID.NULL_41006, NullObjectID.NULL_41007, NullObjectID.NULL_41352,
@@ -165,9 +171,14 @@ public class TemporossPlugin extends Plugin
 				duration = FIRE_SPREAD_MILLIS;
 				break;
 			case NullObjectID.NULL_41006:
-				if (config.fireNotification())
+				if (config.fireNotification().isEnabled())
 				{
-					notifier.notify("A strong wind blows as clouds roll in...");
+                    // Debounce to prevent repeated firing of the storm notification
+                    final Instant now = Instant.now();
+                    if (Duration.between(lastWindNotify, now).compareTo(WIND_NOTIFY_COOLDOWN) > 0) {
+                        notifier.notify(config.fireNotification(), "A strong wind blows as clouds roll in...");
+                        lastWindNotify = now;
+                    }
 				}
 				duration = FIRE_SPAWN_MILLIS;
 				break;
@@ -199,18 +210,22 @@ public class TemporossPlugin extends Plugin
 
 	@Subscribe
 	public void onScriptPreFired(ScriptPreFired scriptPreFired) {
-		if (!config.stormIntensityNotification() || scriptPreFired.getScriptId() != TEMPOROSS_HUD_UPDATE) {
+		if (!config.stormIntensityNotification().isEnabled() || scriptPreFired.getScriptId() != TEMPOROSS_HUD_UPDATE) {
 			return;
 		}
 
 		int[] stack = client.getIntStack();
 		if (stack[0] == STORM_INTENSITY) {
 			int currentStormIntensity = stack[1];
-			int ninetyPercentOfMaxStormIntensity = (int)(MAX_STORM_INTENSITY * .9);
-			// Compare to a 3 unit window. Seems to increase by 2 every tick, so this should make sure it only notifies once.
-			if (currentStormIntensity > ninetyPercentOfMaxStormIntensity && currentStormIntensity < ninetyPercentOfMaxStormIntensity + 3) {
-				notifier.notify("You are running out of time!");
-			}
+			int alertStormIntensity = Math.round(MAX_STORM_INTENSITY * (config.stormIntensityNotificationThreshold() / 100.0f));
+			if (currentStormIntensity > alertStormIntensity) {
+                if (!stormNotificationHasFired) {
+                    notifier.notify(config.stormIntensityNotification(), "You are running out of time!");
+                    stormNotificationHasFired = true;
+                }
+			} else {
+                stormNotificationHasFired = false;
+            }
 		}
 	}
 
@@ -224,9 +239,9 @@ public class TemporossPlugin extends Plugin
 				npcs.put(npcSpawned.getNpc(), Instant.now().toEpochMilli());
 			}
 
-			if (config.doubleSpotNotification())
+			if (config.doubleSpotNotification().isEnabled())
 			{
-				notifier.notify("A double Harpoonfish spot has appeared.");
+				notifier.notify(config.doubleSpotNotification(), "A double Harpoonfish spot has appeared.");
 			}
 		}
 	}
@@ -308,9 +323,9 @@ public class TemporossPlugin extends Plugin
 			waveIsIncoming = true;
 			addTotemTimers(true);
 
-			if (config.waveNotification())
+			if (config.waveNotification().isEnabled())
 			{
-				notifier.notify("A colossal wave closes in...");
+				notifier.notify(config.waveNotification(), "A colossal wave closes in...");
 			}
 		}
 		else if (message.contains(WAVE_END_SAFE) || message.contains(WAVE_END_DANGEROUS))
@@ -324,9 +339,9 @@ public class TemporossPlugin extends Plugin
 
 			redrawInfoBoxes();
 
-			if (config.vulnerableNotification())
+			if (config.vulnerableNotification().isEnabled())
 			{
-				notifier.notify("Tempoross is vulnerable.");
+				notifier.notify(config.vulnerableNotification(), "Tempoross is vulnerable.");
 			}
 		}
 	}

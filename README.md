@@ -1,7 +1,10 @@
 # Tempoross Plugin
+
 ### Features
+
 - Highlighting of the double fishing spot, as well as showing a timer when the fishing spot will approximately deplete.
-- Option to notify when: a double fishing spot appears, a wave is coming in, fires are about to spawn, the storm intensity is 90%, or when Tempoross is vulnerable.
+- Fully customizable notifications using RuneLite's notification system when: a double fishing spot appears, a wave is coming in, fires are about to spawn, the storm intensity is 90%, or when Tempoross is vulnerable.
+- Multiple timer visualization options (Pie chart, Game ticks, Seconds) for all timers.
 - Highlighting of the fires, as well as a timer on when the fires will spread/when they will spawn from the cloud.
 - Highlighting when the wave will hit on the totem poles/masts from when the wave is first announced, and turning green when you are tethered, and turning red if the pole/mast is broken.
 - Showing you how much cooked and uncooked you have fish in your inventory, as well as the damage that will inflict on the boss
@@ -9,6 +12,7 @@
 - At the ruins of Unkah, an infobox is showing the current reward points
 
 ### Pictures
+
 <img align="left" width="350" height="350" src="https://user-images.githubusercontent.com/20537001/112597997-3b450f00-8e0e-11eb-9b23-b9a223f7059e.png">
 <img align="left" width="350" height="350" src="https://user-images.githubusercontent.com/20537001/112598025-48fa9480-8e0e-11eb-9d0a-cbc98f6519fe.png">
 <br/>
