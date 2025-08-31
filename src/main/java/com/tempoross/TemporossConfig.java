@@ -182,8 +182,18 @@ public interface TemporossConfig extends Config
 			description = "Notify when The storm intensity is above 90%",
 			position = 15
 	)
-	default boolean stormIntensityNotification()
+	default Notification stormIntensityNotification()
 	{
-		return false;
+		return Notification.OFF;
 	}
+    @ConfigItem(
+            keyName = "stormIntensityNotificationPercentage",
+            name = "Storm Intensity Notification Percentage",
+            description = "Notify when The storm intensity is above this percentage",
+            position = 16
+    )
+    default int stormIntensityNotificationThreshold()
+    {
+        return 90;
+    }
 }
