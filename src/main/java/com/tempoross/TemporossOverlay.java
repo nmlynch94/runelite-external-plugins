@@ -3,6 +3,7 @@ package com.tempoross;
 import com.google.common.collect.ImmutableSet;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.gameval.ObjectID;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -24,14 +25,14 @@ class TemporossOverlay extends Overlay
 	private static final int MAX_DISTANCE = 3000;
 	private static final int PIE_DIAMETER = 20;
 	private static final float DOUBLE_SPOT_MOVE_MILLIS = 24000f;
-	private static final int FIRE_ID = 37582;
+	private static final int FIRE_ID = ObjectID.TEMPOROSS_FIRE_VISUALS;
 
 	private final Set<Integer> FIRE_GAMEOBJECTS = ImmutableSet.of(
-			FIRE_ID, NullObjectID.NULL_41006, NullObjectID.NULL_41007);
+			FIRE_ID, ObjectID.TEMPOROSS_LIGHTNING_SHADOW, ObjectID.TEMPOROSS_LIGHTNING_SHADOW_SHORT);
 
-	private final Set<Integer> TETHER_GAMEOBJECTS = ImmutableSet.of(NullObjectID.NULL_41352,
-			NullObjectID.NULL_41353, NullObjectID.NULL_41354, NullObjectID.NULL_41355, ObjectID.DAMAGED_MAST_40996,
-			ObjectID.DAMAGED_MAST_40997, ObjectID.DAMAGED_TOTEM_POLE, ObjectID.DAMAGED_TOTEM_POLE_41011);
+	private final Set<Integer> TETHER_GAMEOBJECTS = ImmutableSet.of(ObjectID.TEMPOROSS_MAST_BOTTOM_WEST,
+		ObjectID.TEMPOROSS_MAST_BOTTOM_EAST, ObjectID.TEMPOROSS_TOTEM_NORTH, ObjectID.TEMPOROSS_TOTEM_SOUTH, ObjectID.TEMPOROSS_MAST_BOTTOM_WEST_BROKEN,
+		ObjectID.TEMPOROSS_MAST_BOTTOM_EAST_BROKEN, ObjectID.TEMPOROSS_TOTEM_NORTH_BROKEN, ObjectID.TEMPOROSS_TOTEM_SOUTH_BROKEN);
 
 	private final Client client;
 	private final TemporossPlugin plugin;
