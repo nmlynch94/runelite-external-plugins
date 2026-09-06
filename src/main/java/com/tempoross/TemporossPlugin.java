@@ -69,8 +69,9 @@ public class TemporossPlugin extends Plugin
 	private static final int FIRE_SPREADING_SPAWN_MILLIS = 1200;
 	private static final int WAVE_IMPACT_MILLIS = 7800;
 	public static final int TEMPOROSS_HUD_UPDATE = 4075;
-	public static final int STORM_INTENSITY = 350;
-	public static final int MAX_STORM_INTENSITY = 350;
+	private static final String ENERGY = "Energy";
+	private static final String ESSENCE = "Essence";
+	private static final String STORM_INTENSITY = "Storm Intensity";
 
 	@Inject
 	private Client client;
@@ -96,6 +97,7 @@ public class TemporossPlugin extends Plugin
     // Utilized for fire notification debounce
     private static final Duration WIND_NOTIFY_COOLDOWN = Duration.ofSeconds(20);
     private static boolean stormNotificationHasFired = false;
+	private static int lastEssence = 100;
     private Instant lastWindNotify = Instant.EPOCH;
 
 	private final Set<Integer> TEMPOROSS_GAMEOBJECTS = ImmutableSet.of(
@@ -215,22 +217,50 @@ public class TemporossPlugin extends Plugin
 
 	@Subscribe
 	public void onScriptPreFired(ScriptPreFired scriptPreFired) {
-		if (!config.stormIntensityNotification().isEnabled() || scriptPreFired.getScriptId() != TEMPOROSS_HUD_UPDATE) {
+		if (scriptPreFired.getScriptId() != TEMPOROSS_HUD_UPDATE) {
 			return;
 		}
 
-		int[] stack = client.getIntStack();
-		if (stack[0] == STORM_INTENSITY) {
-			int currentStormIntensity = stack[1];
-			int alertStormIntensity = Math.round(MAX_STORM_INTENSITY * (config.stormIntensityNotificationThreshold() / 100.0f));
-			if (currentStormIntensity > alertStormIntensity) {
-                if (!stormNotificationHasFired) {
-                    notifier.notify(config.stormIntensityNotification(), "You are running out of time!");
-                    stormNotificationHasFired = true;
-                }
-			} else {
-                stormNotificationHasFired = false;
-            }
+		int[] intStack = client.getIntStack();
+		Object[] objectStack = client.getObjectStack();
+
+		if (client.getIntStackSize() < 2 || client.getObjectStackSize() < 1)
+		{
+			return;
+		}
+		Object labelObject = objectStack[0];
+		if (!(labelObject instanceof String))
+		{
+			return;
+		}
+		String label = (String) labelObject;
+
+		int max = intStack[0];
+		int current = intStack[1];
+		int percent = current == 0 || max == 0 ? 0 : Math.max(current * 100 / max, 1);
+
+		switch (label)
+		{
+			case ENERGY:
+				break;
+			case ESSENCE:
+				if (percent < config.temporossEssenceNotificationPercentage() && lastEssence >= config.temporossEssenceNotificationPercentage()) {
+					String notification = String.format("Essence is %d%%", percent);
+					notifier.notify(config.temporossEssenceNotification(), notification);
+				}
+				lastEssence = percent;
+				break;
+			case STORM_INTENSITY:
+				if (percent > config.stormIntensityNotificationThreshold()) {
+					if (!stormNotificationHasFired) {
+						notifier.notify(config.stormIntensityNotification(), "You are running out of time!");
+						stormNotificationHasFired = true;
+					}
+				}
+				else {
+					stormNotificationHasFired = false;
+				}
+				break;
 		}
 	}
 
@@ -568,6 +598,7 @@ public class TemporossPlugin extends Plugin
 		uncookedFish = 0;
 		cookedFish = 0;
 		crystalFish = 0;
+		lastEssence = 100;
 	}
 
 	public void setup()

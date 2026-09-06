@@ -191,7 +191,7 @@ public interface TemporossConfig extends Config
 			keyName = "stormIntensityNotification",
 			name = "Storm Intensity Notification",
 			description = "Notify when The storm intensity is above 90%",
-			position = 15
+			position = 16
 	)
 	default Notification stormIntensityNotification()
 	{
@@ -201,10 +201,32 @@ public interface TemporossConfig extends Config
             keyName = "stormIntensityNotificationPercentage",
             name = "Storm Intensity Notification Percentage",
             description = "Notify when The storm intensity is above this percentage",
-            position = 16
+            position = 17
     )
     default int stormIntensityNotificationThreshold()
     {
         return 90;
     }
+
+	@ConfigItem(
+		keyName = "temporossEssenceNotification",
+		name = "Essence Notification",
+		description = "Notify when Tempoross' essence is below the threshold",
+		position = 18
+	)
+
+	default Notification temporossEssenceNotification()
+	{
+		return Notification.OFF;
+	}
+	@ConfigItem(
+		keyName = "temporossEssenceNotificationPercentage",
+		name = "Essence Notification Percentage",
+		description = "Notify when Tempoross' essence is below this percentage",
+		position = 19
+	)
+	default int temporossEssenceNotificationPercentage()
+	{
+		return 10;
+	}
 }
