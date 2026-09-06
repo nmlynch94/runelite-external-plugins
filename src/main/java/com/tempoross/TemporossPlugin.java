@@ -6,6 +6,11 @@ import lombok.Getter;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.NpcID;
+import net.runelite.api.gameval.ObjectID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -39,8 +44,8 @@ public class TemporossPlugin extends Plugin
 	private static final String WAVE_END_DANGEROUS = "the wave slams into you";
 	private static final String TEMPOROSS_VULNERABLE_MESSAGE = "tempoross is vulnerable";
 
-	private static final int VARB_IS_TETHERED = 11895;
-	private static final int VARB_REWARD_POOL_NUMBER = 11936;
+	private static final int VARB_IS_TETHERED = VarbitID.TEMPOROSS_TETHERED;
+	private static final int VARB_REWARD_POOL_NUMBER = VarbitID.TEMPOROSS_REWARDPERMITS;
 
 	private static final int TEMPOROSS_REGION = 12076;
 	private static final int UNKAH_REWARD_POOL_REGION = 12588;
@@ -52,12 +57,12 @@ public class TemporossPlugin extends Plugin
 
 	private static final int REWARD_POOL_IMAGE_ID = ItemID.TOME_OF_WATER;
 	private static final int DAMAGE_IMAGE_ID = ItemID.DRAGON_HARPOON;
-	private static final int FISH_IMAGE_ID = ItemID.HARPOONFISH;
+	private static final int FISH_IMAGE_ID = ItemID.TEMPOROSS_HARPOONFISH;
 
 	private static final int NET_IMAGE_ID = ItemID.TINY_NET;
 	private static final BufferedImage PHASE_IMAGE = ImageUtil.loadImageResource(TemporossPlugin.class, "phases.png");
 
-	private static final int FIRE_ID = 37582;
+	private static final int FIRE_ID = ObjectID.TEMPOROSS_FIRE_VISUALS;
 
 	private static final int FIRE_SPREAD_MILLIS = 24000;
 	private static final int FIRE_SPAWN_MILLIS = 9600;
@@ -94,9 +99,9 @@ public class TemporossPlugin extends Plugin
     private Instant lastWindNotify = Instant.EPOCH;
 
 	private final Set<Integer> TEMPOROSS_GAMEOBJECTS = ImmutableSet.of(
-		FIRE_ID, NullObjectID.NULL_41006, NullObjectID.NULL_41007, NullObjectID.NULL_41352,
-		NullObjectID.NULL_41353, NullObjectID.NULL_41354, NullObjectID.NULL_41355, ObjectID.DAMAGED_MAST_40996,
-		ObjectID.DAMAGED_MAST_40997, ObjectID.DAMAGED_TOTEM_POLE, ObjectID.DAMAGED_TOTEM_POLE_41011);
+		FIRE_ID, ObjectID.TEMPOROSS_LIGHTNING_SHADOW, ObjectID.TEMPOROSS_LIGHTNING_SHADOW_SHORT, ObjectID.TEMPOROSS_MAST_BOTTOM_WEST,
+		ObjectID.TEMPOROSS_MAST_BOTTOM_EAST, ObjectID.TEMPOROSS_TOTEM_NORTH, ObjectID.TEMPOROSS_TOTEM_SOUTH, ObjectID.TEMPOROSS_MAST_BOTTOM_WEST_BROKEN,
+		ObjectID.TEMPOROSS_MAST_BOTTOM_EAST_BROKEN, ObjectID.TEMPOROSS_TOTEM_NORTH_BROKEN, ObjectID.TEMPOROSS_TOTEM_SOUTH_BROKEN);
 
 	//Jagex changed the fire from 41005 (in objectID) to 37582 (not in ObjectID or nullobjectID),
 	//that's why int instead of an objectid is used.
@@ -170,7 +175,7 @@ public class TemporossPlugin extends Plugin
 			case FIRE_ID:
 				duration = FIRE_SPREAD_MILLIS;
 				break;
-			case NullObjectID.NULL_41006:
+			case ObjectID.TEMPOROSS_LIGHTNING_SHADOW:
 				if (config.fireNotification().isEnabled())
 				{
                     // Debounce to prevent repeated firing of the storm notification
@@ -182,7 +187,7 @@ public class TemporossPlugin extends Plugin
 				}
 				duration = FIRE_SPAWN_MILLIS;
 				break;
-			case NullObjectID.NULL_41007:
+			case ObjectID.TEMPOROSS_LIGHTNING_SHADOW_SHORT:
 				duration = FIRE_SPREADING_SPAWN_MILLIS;
 				break;
 			default:
@@ -232,7 +237,7 @@ public class TemporossPlugin extends Plugin
 	@Subscribe
 	public void onNpcSpawned(NpcSpawned npcSpawned)
 	{
-		if (NpcID.FISHING_SPOT_10569 == npcSpawned.getNpc().getId())
+		if (NpcID.TEMPOROSS_HARPOONFISH_FISHINGSPOT_SPECIAL == npcSpawned.getNpc().getId())
 		{
 			if (config.highlightDoubleSpot())
 			{
@@ -349,7 +354,7 @@ public class TemporossPlugin extends Plugin
 	@Subscribe
 	public void onItemContainerChanged(ItemContainerChanged event)
 	{
-		if (event.getContainerId() != InventoryID.INVENTORY.getId() ||
+		if (event.getContainerId() != InventoryID.INV ||
 			(!config.fishIndicator() && !config.damageIndicator()) ||
 			(fishInfoBox == null && damageInfoBox == null))
 		{
@@ -358,9 +363,9 @@ public class TemporossPlugin extends Plugin
 
 		ItemContainer inventory = event.getItemContainer();
 
-		uncookedFish = inventory.count(ItemID.RAW_HARPOONFISH);
-		cookedFish = inventory.count(ItemID.HARPOONFISH);
-		crystalFish = inventory.count(ItemID.CRYSTALLISED_HARPOONFISH);
+		uncookedFish = inventory.count(ItemID.TEMPOROSS_RAW_HARPOONFISH);
+		cookedFish = inventory.count(ItemID.TEMPOROSS_HARPOONFISH);
+		crystalFish = inventory.count(ItemID.TEMPOROSS_CRYSTALLISED_HARPOONFISH);
 
 		redrawInfoBoxes();
 	}
@@ -384,10 +389,10 @@ public class TemporossPlugin extends Plugin
 			{
 				switch (object.getId())
 				{
-					case ObjectID.DAMAGED_MAST_40996:
-					case ObjectID.DAMAGED_MAST_40997:
-					case ObjectID.DAMAGED_TOTEM_POLE:
-					case ObjectID.DAMAGED_TOTEM_POLE_41011:
+					case ObjectID.TEMPOROSS_MAST_BOTTOM_WEST_BROKEN:
+					case ObjectID.TEMPOROSS_MAST_BOTTOM_EAST_BROKEN:
+					case ObjectID.TEMPOROSS_TOTEM_NORTH_BROKEN:
+					case ObjectID.TEMPOROSS_TOTEM_SOUTH_BROKEN:
 						color = config.poleBrokenColor();
 						break;
 					default:
